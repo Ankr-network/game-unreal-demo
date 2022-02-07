@@ -4,8 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
 #include "Runtime/Online/HTTP/Public/Http.h"
+#include "GenericPlatform/GenericPlatformMisc.h"
 #include "MenuWidget.generated.h"
+
+DECLARE_DYNAMIC_DELEGATE_OneParam(FMirageDelegate, FString, StringOut);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FMirageConnectionStatus, bool, status);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FMirageTicket, FString, TicketId);
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FMirageTicketResult, FString, Status, int, Code);
 
 /**
  * 
@@ -18,17 +25,24 @@ class GAMEDEMO_API UMenuWidget : public UUserWidget
 public:
 	FHttpModule* Http;
 	FString clientId;
-	FString baseUrl = "http://192.168.200.31:3000/";
+	FString baseUrl = "http://45.77.189.28:5000/";
+	FString deviceId = GetDeviceId(); // FGenericPlatformMisc::GetHashedMacAddressString();
 
 	/* The actual HTTP call */
-	UFUNCTION(BlueprintCallable, Category = "Test")
-		void GetClient();
+	UFUNCTION(BlueprintCallable, Category = "MirageSDK")
+		bool GetClient(FMirageConnectionStatus Callback);
 
-	UFUNCTION(BlueprintCallable, Category = "Test")
-		void SendTransaction();
+	UFUNCTION(BlueprintCallable, Category = "MirageSDK")
+		void GetData(FString contract, FString abi, FString method, FString args, FMirageDelegate Result);
 
-	/*Assign this function to call when the GET request processes sucessfully*/
-	void OnGetClientResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
-	void OnSendTransactionResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+	UFUNCTION(BlueprintCallable, Category = "MirageSDK")
+		void SendTransaction(FString contract, FString abi, FString method, FString args, FMirageTicket Ticket);
 
+	UFUNCTION(BlueprintCallable, Category = "MirageSDK")
+		void GetTicketResult(FString ticketId, FMirageTicketResult Result);
+
+	UFUNCTION(BlueprintCallable, Category = "MirageSDK")
+		void SendABI(FString abi, FMirageDelegate Result);
+
+	FString GetDeviceId();
 };
