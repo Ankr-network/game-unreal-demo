@@ -7,6 +7,10 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Runtime/Online/HTTP/Public/Http.h"
 #include "GenericPlatform/GenericPlatformMisc.h"
+// Save Actor
+#include "MySaveGame.h"
+#include <Runtime/Engine/Classes/Kismet/GameplayStatics.h>
+
 #include "MenuWidget.generated.h"
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FMirageDelegate, FString, StringOut);
@@ -26,7 +30,14 @@ public:
 	FHttpModule* Http;
 	FString clientId;
 	FString baseUrl = "http://45.77.189.28:5000/";
-	FString deviceId = GetDeviceId(); // FGenericPlatformMisc::GetHashedMacAddressString();
+	FString deviceId = ""; // FGenericPlatformMisc::GetHashedMacAddressString();
+
+
+	UMenuWidget(const FObjectInitializer& ObjectInitializer);
+
+
+	FString LoadUniqueId();
+	bool SaveUniqueId(FString id);
 
 	/* The actual HTTP call */
 	UFUNCTION(BlueprintCallable, Category = "MirageSDK")
@@ -43,6 +54,4 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "MirageSDK")
 		void SendABI(FString abi, FMirageDelegate Result);
-
-	FString GetDeviceId();
 };

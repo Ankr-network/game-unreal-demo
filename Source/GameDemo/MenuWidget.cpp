@@ -3,9 +3,41 @@
 
 #include "MenuWidget.h"
 #include <string>
-#ifdef __ANDROID__
-#include "Android/AndroidApplication.h"
-#endif
+
+bool UMenuWidget::SaveUniqueId(FString id) {
+	if (UMySaveGame* SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass())))
+	{
+		// Set data on the savegame object.
+		SaveGameInstance->UniqueId = id;
+
+		// Save the data immediately.
+		if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, "MirageSDK", 0))
+		{
+			return true;
+			// Save succeeded.
+		}
+	}
+	return false;
+}
+
+FString UMenuWidget::LoadUniqueId() {
+	if (UMySaveGame* LoadedGame = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot("MirageSDK", 0)))
+	{
+		// The operation was successful, so LoadedGame now contains the data we saved earlier.
+		return LoadedGame->UniqueId;
+	}
+	return "";
+}
+
+UMenuWidget::UMenuWidget(const FObjectInitializer& ObjectInitializer) : UUserWidget(ObjectInitializer) {
+	FString uniqueId = this->LoadUniqueId();
+	if (uniqueId == "") {
+		uniqueId = FGuid::NewGuid().ToString();
+		SaveUniqueId(uniqueId);
+	}
+	this->deviceId = uniqueId;
+}
+
 
 bool UMenuWidget::GetClient(FMirageConnectionStatus Status)
 {
@@ -166,49 +198,4 @@ void UMenuWidget::SendABI(FString abi, FMirageDelegate Result)
 		const TCHAR* replace = TEXT("\\\"");
 	Request->SetContentAsString("{\"abi\": \"" + abi.Replace(find, replace, ESearchCase::IgnoreCase) + "\"}"); // erc20 abi
 	Request->ProcessRequest();
-}
-
-// This function added for get device id on android
-// FGenericPlatformMisc::GetHashedMacAddressString() or FGenericPlatformMisc::GetDeviceId() not working
-FString UMenuWidget::GetDeviceId()
-{
-#ifdef __ANDROID__
-	jstring str;
-	JNIEnv* env = FAndroidApplication::GetJavaEnv();
-	jobject activity = FAndroidApplication::GetGameActivityThis();
-	jmethodID mid = env->GetMethodID(env->GetObjectClass(activity),
-		"getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;");
-	// try to get the phone ID
-	jobject telephony_manager = env->CallObjectMethod(activity, mid,
-		env->NewStringUTF("phone"));
-	jmethodID mid2 = env->GetMethodID(env->GetObjectClass(telephony_manager),
-		"getDeviceId", "()Ljava/lang/String;");
-	// It is a phone
-	str = (jstring)env->CallObjectMethod(telephony_manager, mid2);
-
-	jsize len = env->GetStringUTFLength(str);
-
-	if (len == 0)
-	{
-		// try to get the wifi mac address
-		jobject wifi_manager = env->CallObjectMethod(activity, mid,
-			env->NewStringUTF("wifi"));
-		mid = env->GetMethodID(env->GetObjectClass(wifi_manager),
-			"getConnectionInfo", "()Landroid/net/wifi/WifiInfo;");
-		jobject wifiinfo = env->CallObjectMethod(wifi_manager, mid);
-		mid = env->GetMethodID(env->GetObjectClass(wifiinfo),
-			"getMacAddress", "()Ljava/lang/String;");
-		str = (jstring)env->CallObjectMethod(wifiinfo, mid);
-		len = env->GetStringUTFLength(str);
-	}
-
-	char* _deviceId = (char*)calloc(len + 1, 1);
-	env->GetStringUTFRegion(str, 0, len, _deviceId);
-	env->DeleteLocalRef(str);
-	FString id(_deviceId);
-	free(_deviceId);
-	return FMD5::HashAnsiString(*id);
-#else
-	return FPlatformMisc::GetHashedMacAddressString();
-#endif
 }
