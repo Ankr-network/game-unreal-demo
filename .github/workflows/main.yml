@@ -17,7 +17,7 @@ jobs:
 
       - name: Run container
         run: |
-          mkdir dist && chmod 666 Intermediate
+          mkdir dist && chmod 666 dist
           mkdir Intermediate && chmod 666 Intermediate
           mkdir Binaries && chmod 666 Binaries
           mkdir Build && chmod 666 Build
