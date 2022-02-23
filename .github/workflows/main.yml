@@ -28,5 +28,5 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           prerelease: true
-          file: dist/Android/*
+          file: dist/Android/GameDemo-Android-Shipping-armv7.apk
           tag: ${{ github.ref }}
