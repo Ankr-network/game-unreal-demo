@@ -19,6 +19,7 @@ jobs:
         run: |
           mkdir dist
           mkdir Intermediate && chmod 777 Intermediate
+          mkdir Binaries && chmod 777 Binaries
           docker run -v$PWD:/tmp/project -v$PWD/dist:/tmp/dist mirage-unreal-builder
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
