@@ -17,6 +17,7 @@ jobs:
 
       - name: Run container
         run: |
+          mkdir dist
           docker run -v$PWD:/tmp/project -v$PWD/dist:/tmp/dist mirage-unreal-builder
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
