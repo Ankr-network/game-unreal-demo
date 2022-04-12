@@ -4,7 +4,7 @@
 #include "Engine.h"
 #include "Runtime/Online/HTTP/Public/Http.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "MirageDelegates.h"
+#include "AnkrDelegates.h"
 #include "WearableNFTExample.generated.h"
 
 UCLASS(Blueprintable, BlueprintType)
@@ -49,31 +49,31 @@ public:
 	void SetAccount(FString _account, int _chainId);
 
 	UFUNCTION(BlueprintCallable, Category = "ANKR SDK")
-	void MintItems(FString abi_hash, FString to, FMirageDelegate Result);
+	void MintItems(FString abi_hash, FString to, FAnkrDelegate Result);
 
 	UFUNCTION(BlueprintCallable, Category = "ANKR SDK")
-	void MintCharacter(FString abi_hash, FString to, FMirageDelegate Result);
+	void MintCharacter(FString abi_hash, FString to, FAnkrDelegate Result);
 
 	UFUNCTION(BlueprintCallable, Category = "ANKR SDK")
-	void GameItemSetApproval(FString abi_hash, FString callOperator, bool approved, FMirageDelegate Result);
+	void GameItemSetApproval(FString abi_hash, FString callOperator, bool approved, FAnkrDelegate Result);
 
 	UFUNCTION(BlueprintCallable, Category = "ANKR SDK")
-	void GetCharacterBalance(FString abi_hash, FString address, FMirageDelegate Result);
+	void GetCharacterBalance(FString abi_hash, FString address, FAnkrDelegate Result);
 
 	UFUNCTION(BlueprintCallable, Category = "ANKR SDK")
-	void GetCharacterTokenId(FString abi_hash, int tokenBalance, FString owner, FString index, FMirageDelegate Result);
+	void GetCharacterTokenId(FString abi_hash, int tokenBalance, FString owner, FString index, FAnkrDelegate Result);
 
 	UFUNCTION(BlueprintCallable, Category = "ANKR SDK")
-	void ChangeHat(FString abi_hash, int characterId, bool hasHat, FString hatAddress, FMirageDelegate Result);
+	void ChangeHat(FString abi_hash, int characterId, bool hasHat, FString hatAddress, FAnkrDelegate Result);
 
 	UFUNCTION(BlueprintCallable, Category = "ANKR SDK")
-	void GetHat(FString abi_hash, int characterId, FMirageDelegate Result);
+	void GetHat(FString abi_hash, int characterId, FAnkrDelegate Result);
 	
 	UFUNCTION(BlueprintCallable, Category = "ANKR SDK")
-	void GetTicketResult(FString ticketId, FMirageTicketResult Result);
+	void GetTicketResult(FString ticketId, FAnkrTicketResult Result);
 
 	UFUNCTION(BlueprintCallable, Category = "ANKR SDK")
-	void GetItemsBalance(FString abi_hash, FString address, FMirageDelegate Result);
+	void GetItemsBalance(FString abi_hash, FString address, FAnkrDelegate Result);
 
 	UFUNCTION(BlueprintCallable, Category = "ANKR SDK")
 	int GetItemValueFromBalances(FString data, int index);

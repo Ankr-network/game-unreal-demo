@@ -4,7 +4,7 @@
 #include "Engine.h"
 #include "Runtime/Online/HTTP/Public/Http.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "MirageDelegates.h"
+#include "AnkrDelegates.h"
 #include "UpdateNFTExample.generated.h"
 
 UCLASS(Blueprintable, BlueprintType)
@@ -32,11 +32,11 @@ public:
 	void SetAccount(FString _account, int _chainId);
 
 	UFUNCTION(BlueprintCallable, Category = "ANKR SDK")
-	void GetNFTInfo(FString abi_hash, int tokenId, FMirageDelegate Result);
+	void GetNFTInfo(FString abi_hash, int tokenId, FAnkrDelegate Result);
 
 	UFUNCTION(BlueprintCallable, Category = "ANKR SDK")
-	void UpdateNFT(FString abi_hash, FItemInfoStructure _item, FMirageDelegate Result);
+	void UpdateNFT(FString abi_hash, FItemInfoStructure _item, FAnkrDelegate Result);
 
 	UFUNCTION(BlueprintCallable, Category = "ANKR SDK")
-	void GetTicketResult(FString ticketId, FMirageTicketResult Result);
+	void GetTicketResult(FString ticketId, FAnkrTicketResult Result);
 };

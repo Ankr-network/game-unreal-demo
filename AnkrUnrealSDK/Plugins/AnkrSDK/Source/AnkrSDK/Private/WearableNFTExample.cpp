@@ -57,7 +57,7 @@ void UWearableNFTExample::SetAccount(FString _account, int _chainId)
 // MintItems is used to send a request with { 'device_id', 'contract_address', 'abi_hash', 'method', 'args': ["0xpubAddres\", ["0xtokAddres", "0xtokAddres", "0xtokAddres", "0xtokAddres", "0xtokAddres", "0xtokAddres"],[1, 2, 3, 4, 5, 6], []] } as a raw body parameter at http://45.77.189.28:5000/send/transaction to get a response having a 'ticket'.
 // The session saved during Init will be used to open metamask.
 // Metamask will show popup to sign or confirm the transaction for that ticket.
-void UWearableNFTExample::MintItems(FString abi_hash, FString to, FMirageDelegate Result)
+void UWearableNFTExample::MintItems(FString abi_hash, FString to, FAnkrDelegate Result)
 {
 	http = &FHttpModule::Get();
 
@@ -109,7 +109,7 @@ void UWearableNFTExample::MintItems(FString abi_hash, FString to, FMirageDelegat
 // MintItems is used to send a request with { 'device_id', 'contract_address', 'abi_hash', 'method', 'args': ["0xto"] } as a raw body parameter at http://45.77.189.28:5000/send/transaction to get a response having a 'ticket'.
 // The session saved during Init will be used to open metamask.
 // Metamask will show popup to sign or confirm the transaction for that ticket.
-void UWearableNFTExample::MintCharacter(FString abi_hash, FString to, FMirageDelegate Result)
+void UWearableNFTExample::MintCharacter(FString abi_hash, FString to, FAnkrDelegate Result)
 {
 	http = &FHttpModule::Get();
 
@@ -155,7 +155,7 @@ void UWearableNFTExample::MintCharacter(FString abi_hash, FString to, FMirageDel
 // MintItems is used to send a request with { 'device_id', 'contract_address', 'abi_hash', 'method', 'args': ["0xoperatorContractAddress", true] } as a raw body parameter at http://45.77.189.28:5000/send/transaction to get a response having a 'ticket'.
 // The session saved during Init will be used to open metamask.
 // Metamask will show popup to sign or confirm the transaction for that ticket.
-void UWearableNFTExample::GameItemSetApproval(FString abi_hash, FString callOperator, bool approved, FMirageDelegate Result)
+void UWearableNFTExample::GameItemSetApproval(FString abi_hash, FString callOperator, bool approved, FAnkrDelegate Result)
 {
 	http = &FHttpModule::Get();
 
@@ -205,7 +205,7 @@ void UWearableNFTExample::GameItemSetApproval(FString abi_hash, FString callOper
 // -------------------
 // GetCharacterBalance is used to send a request with { 'device_id', 'contract_address', 'abi_hash', 'method', 'args': ["0xpubAddres"] } as a raw body parameter at http://45.77.189.28:5000/call/method to get a response having a 'data'.
 // The 'data' shows the number of tokens that the user holds.
-void UWearableNFTExample::GetCharacterBalance(FString abi_hash, FString address, FMirageDelegate Result)
+void UWearableNFTExample::GetCharacterBalance(FString abi_hash, FString address, FAnkrDelegate Result)
 {
 	http = &FHttpModule::Get();
 
@@ -242,7 +242,7 @@ void UWearableNFTExample::GetCharacterBalance(FString abi_hash, FString address,
 // -------------------
 // GetCharacterTokenId is used to send a request with { 'device_id', 'contract_address', 'abi_hash', 'method', 'args': ["0xpubAddres", "index"] } as a raw body parameter at http://45.77.189.28:5000/result to get a response having a 'data' object field.
 // The 'data' shows the id of the character.
-void UWearableNFTExample::GetCharacterTokenId(FString abi_hash, int tokenBalance, FString owner, FString index, FMirageDelegate Result)
+void UWearableNFTExample::GetCharacterTokenId(FString abi_hash, int tokenBalance, FString owner, FString index, FAnkrDelegate Result)
 {
 	if (tokenBalance <= 0)
 	{
@@ -286,7 +286,7 @@ void UWearableNFTExample::GetCharacterTokenId(FString abi_hash, int tokenBalance
 // ChangeHat is used to send a request with { 'device_id', 'contract_address', 'abi_hash', 'method', 'args': ["characterId", "tokenAddress"] } as a raw body parameter at http://45.77.189.28:5000/send/transaction to get a response having a 'ticket'.
 // The session saved during Init will be used to open metamask.
 // Metamask will show popup to sign or confirm the transaction for that ticket.
-void UWearableNFTExample::ChangeHat(FString abi_hash, int characterId, bool hasHat, FString hatAddress, FMirageDelegate Result)
+void UWearableNFTExample::ChangeHat(FString abi_hash, int characterId, bool hasHat, FString hatAddress, FAnkrDelegate Result)
 {
 	if (!hasHat || characterId == -1)
 	{
@@ -348,7 +348,7 @@ void UWearableNFTExample::ChangeHat(FString abi_hash, int characterId, bool hasH
 // ------
 // GetTicketResult is used to send a request with { 'device_id', 'contract_address', 'abi_hash', 'method', 'args': ["characterId"] } as a raw body parameter at http://45.77.189.28:5000/call/method to get a response having a 'data' string field.
 // The 'data' shows the token address that the player has.
-void UWearableNFTExample::GetHat(FString abi_hash, int characterId, FMirageDelegate Result)
+void UWearableNFTExample::GetHat(FString abi_hash, int characterId, FAnkrDelegate Result)
 {
 	http = &FHttpModule::Get();
 
@@ -387,7 +387,7 @@ void UWearableNFTExample::GetHat(FString abi_hash, int characterId, FMirageDeleg
 // GetTicketResult is used to send a request with { 'ticket' } as a raw body parameter at http://45.77.189.28:5000/result to get a response having a 'data' string field.
 // The 'status' shows whether the result for the ticket signed has a success with a transaction hash.
 // The 'code' shows a code number related to a specific failure or success.
-void UWearableNFTExample::GetTicketResult(FString ticketId, FMirageTicketResult Result)
+void UWearableNFTExample::GetTicketResult(FString ticketId, FAnkrTicketResult Result)
 {
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = http->CreateRequest();
 	Request->OnProcessRequestComplete().BindLambda([Result, ticketId, this](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
@@ -430,7 +430,7 @@ void UWearableNFTExample::GetTicketResult(FString ticketId, FMirageTicketResult 
 // ---------------
 // GetItemsBalance is used to send a request with { 'device_id', 'contract_address', 'abi_hash', 'method', 'args': [["9 wallet address elements"], ["9 token address elements"]] } as a raw body parameter at http://45.77.189.28:5000/call/method to get a response having a 'data' string field.
 // The 'data' shows a response of an array of balances for each token, in the sequence that were sent as a request.
-void UWearableNFTExample::GetItemsBalance(FString abi_hash, FString address, FMirageDelegate Result)
+void UWearableNFTExample::GetItemsBalance(FString abi_hash, FString address, FAnkrDelegate Result)
 {
 	http = &FHttpModule::Get();
 

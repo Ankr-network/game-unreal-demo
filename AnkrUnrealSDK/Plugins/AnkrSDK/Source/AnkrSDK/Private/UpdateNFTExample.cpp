@@ -37,7 +37,7 @@ void UUpdateNFTExample::SetAccount(FString _account, int _chainId)
 // GetNFTInfo
 // -------------
 // GetNFTInfo is used to send a request with { 'device_id', 'contract_address', 'abi_hash', 'method', 'args': "tokenId" } as a raw body parameter at http://45.77.189.28:5000/call/method to get a response having a data { 'tokenId', 'itemType', 'strength', 'level', 'expireTime', 'signature' }.
-void UUpdateNFTExample::GetNFTInfo(FString abi_hash, int tokenId, FMirageDelegate Result)
+void UUpdateNFTExample::GetNFTInfo(FString abi_hash, int tokenId, FAnkrDelegate Result)
 {
 	http = &FHttpModule::Get();
 
@@ -73,7 +73,7 @@ void UUpdateNFTExample::GetNFTInfo(FString abi_hash, int tokenId, FMirageDelegat
 // UpdateNFT is used to send a request with { 'device_id', 'contract_address', 'abi_hash', 'method', 'args': { 'tokenId':int, 'itemType':int, 'strength':int, 'level':int, 'expireTime':int, 'signature':"0x" } } as a raw body parameter at http://45.77.189.28:5000/send/transaction to get a response having a 'ticket'.
 // The session saved during Init will be used to open metamask.
 // Metamask will show popup to sign or confirm the transaction for that ticket.
-void UUpdateNFTExample::UpdateNFT(FString abi_hash, FItemInfoStructure _item, FMirageDelegate Result)
+void UUpdateNFTExample::UpdateNFT(FString abi_hash, FItemInfoStructure _item, FAnkrDelegate Result)
 {
 	http = &FHttpModule::Get();
 
@@ -125,7 +125,7 @@ void UUpdateNFTExample::UpdateNFT(FString abi_hash, FItemInfoStructure _item, FM
 // GetTicketResult is used to send a request with { 'ticket' } as a raw body parameter at http://45.77.189.28:5000/result to get a response having a 'data' object field.
 // The 'status' shows whether the result for the ticket signed has a success with a transaction hash.
 // The 'code' shows a code number related to a specific failure or success.
-void UUpdateNFTExample::GetTicketResult(FString ticketId, FMirageTicketResult Result)
+void UUpdateNFTExample::GetTicketResult(FString ticketId, FAnkrTicketResult Result)
 {
 		TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = http->CreateRequest();
 		Request->OnProcessRequestComplete().BindLambda([Result, ticketId, this](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
