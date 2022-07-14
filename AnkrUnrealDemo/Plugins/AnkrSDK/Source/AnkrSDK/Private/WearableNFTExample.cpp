@@ -4,9 +4,6 @@
 #include "AnkrUtility.h"
 #include "RequestBodyStructure.h"
 
-// -----------
-// Constructor
-// -----------
 // Contract addresses, ABIs, transaction limit and some item tokens are assigned.
 UWearableNFTExample::UWearableNFTExample(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -31,9 +28,6 @@ UWearableNFTExample::UWearableNFTExample(const FObjectInitializer& ObjectInitial
 	WhiteGlassesAddress			 = "0x00030000000000000000000000000000000000000000000000000000000003";
 }
 
-// ----
-// Init
-// ----
 // Init will save deviceId and session when the GetClient is called from MirageClient.cpp.
 void UWearableNFTExample::Init(FString _deviceId, FString _session)
 {
@@ -41,9 +35,6 @@ void UWearableNFTExample::Init(FString _deviceId, FString _session)
 	session = _session;
 }
 
-// ----------
-// SetAccount
-// ----------
 // SetAccount will save activeAccount and chainId when the GetWalletInfo is called from MirageClient.cpp.
 void UWearableNFTExample::SetAccount(FString _account, int _chainId)
 {
@@ -51,13 +42,9 @@ void UWearableNFTExample::SetAccount(FString _account, int _chainId)
 	chainId		  = _chainId;
 }
 
-// ---------
-// MintItems
-// ---------
-// MintItems is used to send a request with { 'device_id', 'contract_address', 'abi_hash', 'method', 'args': ["0xpubAddres\", ["0xtokAddres", "0xtokAddres", "0xtokAddres", "0xtokAddres", "0xtokAddres", "0xtokAddres"],[1, 2, 3, 4, 5, 6], []] } as a raw body parameter at http://45.77.189.28:5000/send/transaction to get a response having a 'ticket'.
-// The session saved during Init will be used to open metamask.
+// MintItems is used to mint items to the user specified in the parameter.
 // Metamask will show popup to sign or confirm the transaction for that ticket.
-void UWearableNFTExample::MintItems(FString abi_hash, FString to, FAnkrDelegate Result)
+void UWearableNFTExample::MintItems(FString abi_hash, FString to, FAnkrCallCompleteDynamicDelegate Result)
 {
 	http = &FHttpModule::Get();
 
@@ -82,7 +69,7 @@ void UWearableNFTExample::MintItems(FString abi_hash, FString to, FAnkrDelegate 
 		}
 			
 		AnkrUtility::SetLastRequest("MintItems");
-		Result.ExecuteIfBound(data);
+		Result.ExecuteIfBound(content, data, "", -1, false);
 	});
 
 	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this, Request, abi_hash, to]()
@@ -92,10 +79,9 @@ void UWearableNFTExample::MintItems(FString abi_hash, FString to, FAnkrDelegate 
 		FString args = "[\"" + to + "\", [\"" + BlueHatAddress + "\", \"" + RedHatAddress + "\", \"" + BlueShoesAddress + "\", \"" + WhiteShoesAddress + "\", \"" + RedGlassesAddress + "\", \"" + WhiteGlassesAddress + "\"], [1, 2, 3, 4, 5, 6], \"0x\"]";
 		args = args.Replace(TEXT(" "), TEXT(""));
 
-		FString url = API_BASE_URL + ENDPOINT_SEND_TRANSACTION;
+		FString url = AnkrUtility::GetUrl() + ENDPOINT_SEND_TRANSACTION;
 		Request->SetURL(url);
 		Request->SetVerb("POST");
-		Request->SetHeader(USER_AGENT_KEY, USER_AGENT_VALUE);
 		Request->SetHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
 		Request->SetContentAsString("{\"device_id\": \"" + deviceId + "\", \"contract_address\": \"" + GameItemContractAddress + "\", \"abi_hash\": \"" + abi_hash + "\", \"method\": \"" + mintBatchMethodName + "\", \"args\": " + args + "}");
 		Request->ProcessRequest();
@@ -106,13 +92,9 @@ void UWearableNFTExample::MintItems(FString abi_hash, FString to, FAnkrDelegate 
 	});
 }
 
-// -------------
-// MintCharacter
-// -------------
-// MintCharacter is used to send a request with { 'device_id', 'contract_address', 'abi_hash', 'method', 'args': ["0xto"] } as a raw body parameter at http://45.77.189.28:5000/send/transaction to get a response having a 'ticket'.
-// The session saved during Init will be used to open metamask.
+// MintCharacter is used to mint character to the user specified in the parameter.
 // Metamask will show popup to sign or confirm the transaction for that ticket.
-void UWearableNFTExample::MintCharacter(FString abi_hash, FString to, FAnkrDelegate Result)
+void UWearableNFTExample::MintCharacter(FString abi_hash, FString to, FAnkrCallCompleteDynamicDelegate Result)
 {
 	http = &FHttpModule::Get();
 
@@ -137,17 +119,16 @@ void UWearableNFTExample::MintCharacter(FString abi_hash, FString to, FAnkrDeleg
 		}
 			
 		AnkrUtility::SetLastRequest("MintCharacter");
-		Result.ExecuteIfBound(data);
+		Result.ExecuteIfBound(content, data, "", -1, false);
 	});
 
 	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this, Request, abi_hash, to]()
 	{
 		FString safeMintMethodName = "safeMint";
 
-		FString url = API_BASE_URL + ENDPOINT_SEND_TRANSACTION;
+		FString url = AnkrUtility::GetUrl() + ENDPOINT_SEND_TRANSACTION;
 		Request->SetURL(url);
 		Request->SetVerb("POST");
-		Request->SetHeader(USER_AGENT_KEY, USER_AGENT_VALUE);
 		Request->SetHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
 		Request->SetContentAsString("{\"device_id\": \"" + deviceId + "\", \"contract_address\": \"" + GameCharacterContractAddress + "\", \"abi_hash\": \"" + abi_hash + "\", \"method\": \"" + safeMintMethodName + "\", \"args\": [\"" + to + "\"]}");
 		Request->ProcessRequest();
@@ -158,13 +139,9 @@ void UWearableNFTExample::MintCharacter(FString abi_hash, FString to, FAnkrDeleg
 	});
 }
 
-// -------------------
-// GameItemSetApproval
-// -------------------
-// GameItemSetApproval is used to send a request with { 'device_id', 'contract_address', 'abi_hash', 'method', 'args': ["0xoperatorContractAddress", true] } as a raw body parameter at http://45.77.189.28:5000/send/transaction to get a response having a 'ticket'.
-// The session saved during Init will be used to open metamask.
+// GameItemSetApproval is used to give an approval for minting.
 // Metamask will show popup to sign or confirm the transaction for that ticket.
-void UWearableNFTExample::GameItemSetApproval(FString abi_hash, FString callOperator, bool approved, FAnkrDelegate Result)
+void UWearableNFTExample::GameItemSetApproval(FString abi_hash, FString callOperator, bool approved, FAnkrCallCompleteDynamicDelegate Result)
 {
 	http = &FHttpModule::Get();
 
@@ -193,7 +170,7 @@ void UWearableNFTExample::GameItemSetApproval(FString abi_hash, FString callOper
 		}
 			
 		AnkrUtility::SetLastRequest("GameItemSetApproval");
-		Result.ExecuteIfBound(data);
+		Result.ExecuteIfBound(content, data, "", -1, false);
 	});
 
 	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this, Request, abi_hash, callOperator, approved]()
@@ -202,10 +179,9 @@ void UWearableNFTExample::GameItemSetApproval(FString abi_hash, FString callOper
 
 		FString body = "{\"device_id\": \"" + deviceId + "\", \"contract_address\": \"" + GameItemContractAddress + "\", \"abi_hash\": \"" + abi_hash + "\", \"method\": \"" + setApprovalForAllMethodName + "\", \"args\": [\"" + GameCharacterContractAddress + "\", true ]}";
 			
-		FString url = API_BASE_URL + ENDPOINT_SEND_TRANSACTION;
+		FString url = AnkrUtility::GetUrl() + ENDPOINT_SEND_TRANSACTION;
 		Request->SetURL(url);
 		Request->SetVerb("POST");
-		Request->SetHeader(USER_AGENT_KEY, USER_AGENT_VALUE);
 		Request->SetHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
 		Request->SetContentAsString(body);
 		Request->ProcessRequest();
@@ -216,12 +192,9 @@ void UWearableNFTExample::GameItemSetApproval(FString abi_hash, FString callOper
 	});
 }
 
-// -------------------
-// GetCharacterBalance
-// -------------------
-// GetCharacterBalance is used to send a request with { 'device_id', 'contract_address', 'abi_hash', 'method', 'args': ["0xpubAddres"] } as a raw body parameter at http://45.77.189.28:5000/call/method to get a response having a 'data'.
+// GetCharacterBalance is used to get the number of token balances that the user holds.
 // The 'data' shows the number of tokens that the user holds.
-void UWearableNFTExample::GetCharacterBalance(FString abi_hash, FString address, FAnkrDelegate Result)
+void UWearableNFTExample::GetCharacterBalance(FString abi_hash, FString address, FAnkrCallCompleteDynamicDelegate Result)
 {
 	http = &FHttpModule::Get();
 
@@ -244,26 +217,22 @@ void UWearableNFTExample::GetCharacterBalance(FString abi_hash, FString address,
 			data = JsonObject->GetStringField("data");
 		}
 			
-		Result.ExecuteIfBound(data);
+		Result.ExecuteIfBound(content, data, "", -1, false);
 	});
 
 	FString balanceOfMethodName = "balanceOf";
 
-	FString url = API_BASE_URL + ENDPOINT_CALL_METHOD;
+	FString url = AnkrUtility::GetUrl() + ENDPOINT_CALL_METHOD;
 	Request->SetURL(url);
 	Request->SetVerb("POST");
-	Request->SetHeader(USER_AGENT_KEY, USER_AGENT_VALUE);
 	Request->SetHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
 	Request->SetContentAsString("{\"device_id\": \"" + deviceId + "\", \"contract_address\": \"" + GameCharacterContractAddress + "\", \"abi_hash\": \"" + abi_hash + "\", \"method\": \"" + balanceOfMethodName + "\", \"args\": [\"" + address + "\"]}");
 	Request->ProcessRequest();
 }
 
-// -------------------
-// GetCharacterTokenId
-// -------------------
-// GetCharacterTokenId is used to send a request with { 'device_id', 'contract_address', 'abi_hash', 'method', 'args': ["0xpubAddres", "index"] } as a raw body parameter at http://45.77.189.28:5000/result to get a response having a 'data' object field.
+// GetCharacterTokenId is used to get the token ids that the user holds.
 // The 'data' shows the id of the character.
-void UWearableNFTExample::GetCharacterTokenId(FString abi_hash, int tokenBalance, FString owner, FString index, FAnkrDelegate Result)
+void UWearableNFTExample::GetCharacterTokenId(FString abi_hash, int tokenBalance, FString owner, FString index, FAnkrCallCompleteDynamicDelegate Result)
 {
 	if (tokenBalance <= 0)
 	{
@@ -292,27 +261,22 @@ void UWearableNFTExample::GetCharacterTokenId(FString abi_hash, int tokenBalance
 			data = JsonObject->GetStringField("data");
 		}
 
-		Result.ExecuteIfBound(data);
+		Result.ExecuteIfBound(content, data, "", -1, false);
 	});
 
 	FString tokenOfOwnerByIndexMethodName = "tokenOfOwnerByIndex";
 
-	FString url = API_BASE_URL + ENDPOINT_CALL_METHOD;
+	FString url = AnkrUtility::GetUrl() + ENDPOINT_CALL_METHOD;
 	Request->SetURL(url);
 	Request->SetVerb("POST");
-	Request->SetHeader(USER_AGENT_KEY, USER_AGENT_VALUE);
 	Request->SetHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
 	Request->SetContentAsString("{\"device_id\": \"" + deviceId + "\", \"contract_address\": \"" + GameCharacterContractAddress + "\", \"abi_hash\": \"" + abi_hash + "\", \"method\": \"" + tokenOfOwnerByIndexMethodName + "\", \"args\": [\"" + owner + "\", \"" + index + "\"]}");
 	Request->ProcessRequest();
 }
 
-// ---------------
-// ChangeHat
-// ---------------
-// ChangeHat is used to send a request with { 'device_id', 'contract_address', 'abi_hash', 'method', 'args': ["characterId", "tokenAddress"] } as a raw body parameter at http://45.77.189.28:5000/send/transaction to get a response having a 'ticket'.
-// The session saved during Init will be used to open metamask.
+// ChangeHat is used to change the hat of a character.
 // Metamask will show popup to sign or confirm the transaction for that ticket.
-void UWearableNFTExample::ChangeHat(FString abi_hash, int characterId, bool hasHat, FString hatAddress, FAnkrDelegate Result)
+void UWearableNFTExample::ChangeHat(FString abi_hash, int characterId, bool hasHat, FString hatAddress, FAnkrCallCompleteDynamicDelegate Result)
 {
 	if (!hasHat || characterId == -1)
 	{
@@ -344,7 +308,7 @@ void UWearableNFTExample::ChangeHat(FString abi_hash, int characterId, bool hasH
 		if		(hatAddress.Equals(BlueHatAddress)) AnkrUtility::SetLastRequest("ChangeHatBlue");
 		else if (hatAddress.Equals(RedHatAddress))  AnkrUtility::SetLastRequest("ChangeHatRed");
 			
-		Result.ExecuteIfBound(ticket);
+		Result.ExecuteIfBound(content, ticket, "", -1, false);
 	});
 
 	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this, Request, abi_hash, characterId, hasHat, hatAddress]()
@@ -353,10 +317,9 @@ void UWearableNFTExample::ChangeHat(FString abi_hash, int characterId, bool hasH
 
 		FString body = "{\"device_id\": \"" + deviceId + "\", \"contract_address\": \"" + GameCharacterContractAddress + "\", \"abi_hash\": \"" + abi_hash + "\", \"method\": \"" + changeHatMethodName + "\", \"args\": [\"" + FString::FromInt(characterId) + "\", \"" + hatAddress + "\"]}";
 
-		FString url = API_BASE_URL + ENDPOINT_SEND_TRANSACTION;
+		FString url = AnkrUtility::GetUrl() + ENDPOINT_SEND_TRANSACTION;
 		Request->SetURL(url);
 		Request->SetVerb("POST");
-		Request->SetHeader(USER_AGENT_KEY, USER_AGENT_VALUE);
 		Request->SetHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
 		Request->SetContentAsString(body);
 		Request->ProcessRequest();
@@ -367,12 +330,9 @@ void UWearableNFTExample::ChangeHat(FString abi_hash, int characterId, bool hasH
 	});
 }
 
-// ------
-// GetHat
-// ------
-// GetHat is used to send a request with { 'device_id', 'contract_address', 'abi_hash', 'method', 'args': ["characterId"] } as a raw body parameter at http://45.77.189.28:5000/call/method to get a response having a 'data' string field.
-// The 'data' shows the token address that the player has.
-void UWearableNFTExample::GetHat(FString abi_hash, int characterId, FAnkrDelegate Result)
+// GetHat is used to get the hat of the user.
+// The 'data' shows the token address that the user has.
+void UWearableNFTExample::GetHat(FString abi_hash, int characterId, FAnkrCallCompleteDynamicDelegate Result)
 {
 	http = &FHttpModule::Get();
 
@@ -395,27 +355,23 @@ void UWearableNFTExample::GetHat(FString abi_hash, int characterId, FAnkrDelegat
 			data = JsonObject->GetStringField("data");
 		}
 			
-		Result.ExecuteIfBound(data);
+		Result.ExecuteIfBound(content, data, "", -1, false);
 	});
 
 	FString getHatMethodName = "getHat";
 
-	FString url = API_BASE_URL + ENDPOINT_CALL_METHOD;
+	FString url = AnkrUtility::GetUrl() + ENDPOINT_CALL_METHOD;
 	Request->SetURL(url);
 	Request->SetVerb("POST");
-	Request->SetHeader(USER_AGENT_KEY, USER_AGENT_VALUE);
 	Request->SetHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
 	Request->SetContentAsString("{\"device_id\": \"" + deviceId + "\", \"contract_address\": \"" + GameCharacterContractAddress + "\", \"abi_hash\": \"" + abi_hash + "\", \"method\": \"" + getHatMethodName + "\", \"args\": [\"" + FString::FromInt(characterId) + "\"]}");
 	Request->ProcessRequest();
 }
 
-// ---------------
-// GetTicketResult
-// ---------------
-// GetTicketResult is used to send a request with { 'ticket' } as a raw body parameter at http://45.77.189.28:5000/result to get a response having a 'data' string field.
+// GetTicketResult is used to get the result of a ticket.
 // The 'status' shows whether the result for the ticket signed has a success with a transaction hash.
 // The 'code' shows a code number related to a specific failure or success.
-void UWearableNFTExample::GetTicketResult(FString ticketId, FAnkrTicketResult Result)
+void UWearableNFTExample::GetTicketResult(FString ticketId, FAnkrCallCompleteDynamicDelegate Result)
 {
 #if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26)
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = http->CreateRequest();
@@ -451,24 +407,19 @@ void UWearableNFTExample::GetTicketResult(FString ticketId, FAnkrTicketResult Re
 			}
 		}
 
-		Result.ExecuteIfBound(content, code);
+		Result.ExecuteIfBound(content, data, "", code, false);
 	});
 
-	FString url = API_BASE_URL + ENDPOINT_RESULT;
+	FString url = AnkrUtility::GetUrl() + ENDPOINT_RESULT;
 	Request->SetURL(url);
 	Request->SetVerb("POST");
-	Request->SetHeader(USER_AGENT_KEY, USER_AGENT_VALUE);
 	Request->SetHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
 	Request->SetContentAsString("{\"ticket\": \"" + ticketId + "\" }");
 	Request->ProcessRequest();
 }
 
-// ---------------
-// GetItemsBalance
-// ---------------
-// GetItemsBalance is used to send a request with { 'device_id', 'contract_address', 'abi_hash', 'method', 'args': [["9 wallet address elements"], ["9 token address elements"]] } as a raw body parameter at http://45.77.189.28:5000/call/method to get a response having a 'data' string field.
-// The 'data' shows a response of an array of balances for each token, in the sequence that were sent as a request.
-void UWearableNFTExample::GetItemsBalance(FString abi_hash, FString address, FAnkrDelegate Result)
+// GetItemsBalance is used to get the item balances that the user has.
+void UWearableNFTExample::GetItemsBalance(FString abi_hash, FString address, FAnkrCallCompleteDynamicDelegate Result)
 {
 	http = &FHttpModule::Get();
 
@@ -492,33 +443,74 @@ void UWearableNFTExample::GetItemsBalance(FString abi_hash, FString address, FAn
 			UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - GetItemsBalance - Balance: %s"), *data);
 		}
 			
-		Result.ExecuteIfBound(data);
+		Result.ExecuteIfBound(content, data, "", -1, false);
 	});
 
 	FString balanceOfBatchMethodName = "balanceOfBatch";
 
 	FString args = "[ [\"" + activeAccount + "\", \"" + activeAccount + "\", \"" + activeAccount + "\", \"" + activeAccount + "\", \"" + activeAccount + "\", \"" + activeAccount + "\", \"" + activeAccount + "\", \"" + activeAccount + "\", \"" + activeAccount + "\"], [\"" + BlueHatAddress + "\", \"" + RedHatAddress + "\", \"" + WhiteHatAddress + "\", \"" + BlueShoesAddress + "\", \"" + RedShoesAddress + "\", \"" + WhiteShoesAddress + "\", \"" + BlueGlassesAddress + "\", \"" + RedGlassesAddress + "\", \"" + WhiteGlassesAddress + "\"]]";
 	
-	FString url = API_BASE_URL + ENDPOINT_CALL_METHOD;
+	FString url = AnkrUtility::GetUrl() + ENDPOINT_CALL_METHOD;
 	Request->SetURL(url);
 	Request->SetVerb("POST");
-	Request->SetHeader(USER_AGENT_KEY, USER_AGENT_VALUE);
 	Request->SetHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
 	Request->SetContentAsString("{\"device_id\": \"" + deviceId + "\", \"contract_address\": \"" + GameItemContractAddress + "\", \"abi_hash\": \"" + abi_hash + "\", \"method\": \"" + balanceOfBatchMethodName + "\", \"args\": " + args + "}");
 	Request->ProcessRequest();
 }
 
-// ---------------
-// GetItemValueFromBalances
-// ---------------
-// Get the balance value for a token inside the balance array that is returned from GetItemsBalance.
+// GetItemValueFromBalances is used to get the balance value for a token inside the balance array that is returned from GetItemsBalance.
 int UWearableNFTExample::GetItemValueFromBalances(FString data, int index)
 {
 	TArray<FString> tokens;
 	FString seperator(",");
 	data.ParseIntoArray(tokens, *seperator, true);
+	int numberOfTokens = tokens.Num();
 
-	if (index > 8) return -1;
+	if (numberOfTokens <= 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - GetItemValueFromBalances - numberOfTokens: %d"), numberOfTokens);
+		return -1;
+	}
+
+	if (index > numberOfTokens - 1) index = numberOfTokens - 1;
+	else if (index < -1) index = 0;
+
 
 	return FCString::Atoi(*tokens[index]);
+}
+
+void UWearableNFTExample::GetTokenURI(FString abi_hash, int tokenId, FAnkrCallCompleteDynamicDelegate Result)
+{
+	http = &FHttpModule::Get();
+
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26)
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = http->CreateRequest();
+#else
+	TSharedRef<IHttpRequest> Request = http->CreateRequest();
+#endif
+	Request->OnProcessRequestComplete().BindLambda([Result, this](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+		{
+			const FString content = Response->GetContentAsString();
+			UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - GetCharacterTokenId - GetContentAsString: %s"), *content);
+
+			TSharedPtr<FJsonObject> JsonObject;
+			TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(content);
+
+			FString data = content;
+			if (FJsonSerializer::Deserialize(Reader, JsonObject))
+			{
+				data = JsonObject->GetStringField("data");
+			}
+
+			Result.ExecuteIfBound(content, data, "", -1, false);
+		});
+
+	FString tokenURI = "tokenURI";
+
+	FString url = AnkrUtility::GetUrl() + ENDPOINT_CALL_METHOD;
+	Request->SetURL(url);
+	Request->SetVerb("POST");
+	Request->SetHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
+	Request->SetContentAsString("{\"device_id\": \"" + deviceId + "\", \"contract_address\": \"" + GameCharacterContractAddress + "\", \"abi_hash\": \"" + abi_hash + "\", \"method\": \"" + tokenURI + "\", \"args\": \"" + FString::FromInt(tokenId) + "\"}");
+	Request->ProcessRequest();
 }
