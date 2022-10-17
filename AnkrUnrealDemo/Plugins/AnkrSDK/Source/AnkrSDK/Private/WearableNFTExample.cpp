@@ -1,237 +1,168 @@
 #include "WearableNFTExample.h"
-#include "UpdateNFTExample.h"
-#include "ItemInfo.h"
 #include "AnkrUtility.h"
-#include "RequestBodyStructure.h"
+#include "PayloadBuilder.h"
+#include "MathHelper.h"
+#include "Math/BigInt.h"
+#include <vector>
 
-// Contract addresses, ABIs, transaction limit and some item tokens are assigned.
 UWearableNFTExample::UWearableNFTExample(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	GameItemContractAddress		 = "0xD0eF33b38D8525728902D90b20d6e2F303B8dc2C";
-	//GameItemContractAddress		 = "0x26aFc7805Aa279fB0E806c2bc1e2bF37A70F995d";
-	GameItemABI					 = "[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"approved\",\"type\":\"bool\"}],\"name\":\"ApprovalForAll\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"previousAdminRole\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"newAdminRole\",\"type\":\"bytes32\"}],\"name\":\"RoleAdminChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RoleGranted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RoleRevoked\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256[]\",\"name\":\"ids\",\"type\":\"uint256[]\"},{\"indexed\":false,\"internalType\":\"uint256[]\",\"name\":\"values\",\"type\":\"uint256[]\"}],\"name\":\"TransferBatch\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"TransferSingle\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"URI\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"DEFAULT_ADMIN_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MINTER_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"URI_SETTER_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"accounts\",\"type\":\"address[]\"},{\"internalType\":\"uint256[]\",\"name\":\"ids\",\"type\":\"uint256[]\"}],\"name\":\"balanceOfBatch\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"burn\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"uint256[]\",\"name\":\"ids\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"values\",\"type\":\"uint256[]\"}],\"name\":\"burnBatch\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"exists\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"}],\"name\":\"getRoleAdmin\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"grantRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"hasRole\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"}],\"name\":\"isApprovedForAll\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"mint\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256[]\",\"name\":\"ids\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"mintBatch\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"renounceRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"revokeRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256[]\",\"name\":\"ids\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"safeBatchTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"safeTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"approved\",\"type\":\"bool\"}],\"name\":\"setApprovalForAll\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"newuri\",\"type\":\"string\"}],\"name\":\"setURI\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"totalSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"uri\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]";
+	GameItemContractAddress = "0xB647a5EfBd5E1c79c768296673Efa0a44c5E92a9";
+	GameItemABI = "[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"approved\",\"type\":\"bool\"}],\"name\":\"ApprovalForAll\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"previousAdminRole\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"newAdminRole\",\"type\":\"bytes32\"}],\"name\":\"RoleAdminChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RoleGranted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RoleRevoked\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256[]\",\"name\":\"ids\",\"type\":\"uint256[]\"},{\"indexed\":false,\"internalType\":\"uint256[]\",\"name\":\"values\",\"type\":\"uint256[]\"}],\"name\":\"TransferBatch\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"TransferSingle\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"URI\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"DEFAULT_ADMIN_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MINTER_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"URI_SETTER_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"accounts\",\"type\":\"address[]\"},{\"internalType\":\"uint256[]\",\"name\":\"ids\",\"type\":\"uint256[]\"}],\"name\":\"balanceOfBatch\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"burn\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"uint256[]\",\"name\":\"ids\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"values\",\"type\":\"uint256[]\"}],\"name\":\"burnBatch\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"exists\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"}],\"name\":\"getRoleAdmin\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"grantRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"hasRole\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"}],\"name\":\"isApprovedForAll\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"mint\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256[]\",\"name\":\"ids\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"mintBatch\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"renounceRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"revokeRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256[]\",\"name\":\"ids\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"safeBatchTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"safeTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"approved\",\"type\":\"bool\"}],\"name\":\"setApprovalForAll\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"newuri\",\"type\":\"string\"}],\"name\":\"setURI\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"totalSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"uri\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]";
 
-	GameCharacterContractAddress = "0x7081F409F750EACD27867c988b4B3771d935Fe16";
-	//GameCharacterContractAddress = "0x2ff8d8a0e5d8e3cf34aa490abfd8f365e1f77f0d";
-	//GameCharacterContractAddress = "0x10555B832DE7bAD8459d6de1D8E8F5ad990709A0";
-	GameCharacterABI			 = "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"gameItemContractAddress\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"approved\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"approved\",\"type\":\"bool\"}],\"name\":\"ApprovalForAll\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"characterId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"oldGlassesId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newGlassesId\",\"type\":\"uint256\"}],\"name\":\"GlassesChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"characterId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"oldHatId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newHatId\",\"type\":\"uint256\"}],\"name\":\"HatChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"previousAdminRole\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"newAdminRole\",\"type\":\"bytes32\"}],\"name\":\"RoleAdminChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RoleGranted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RoleRevoked\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"characterId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"oldShoesId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newShoesId\",\"type\":\"uint256\"}],\"name\":\"ShoesChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"DEFAULT_ADMIN_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MINTER_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"burn\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"characterId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"newGlassesId\",\"type\":\"uint256\"}],\"name\":\"changeGlasses\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"characterId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"newHatId\",\"type\":\"uint256\"}],\"name\":\"changeHat\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"characterId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"newShoesId\",\"type\":\"uint256\"}],\"name\":\"changeShoes\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"getApproved\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"characterId\",\"type\":\"uint256\"}],\"name\":\"getGlasses\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"characterId\",\"type\":\"uint256\"}],\"name\":\"getHat\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"}],\"name\":\"getRoleAdmin\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"characterId\",\"type\":\"uint256\"}],\"name\":\"getShoes\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"grantRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"hasRole\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"}],\"name\":\"isApprovedForAll\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"onERC1155BatchReceived\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"onERC1155Received\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"ownerOf\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"renounceRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"revokeRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"}],\"name\":\"safeMint\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"safeTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"safeTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"approved\",\"type\":\"bool\"}],\"name\":\"setApprovalForAll\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"index\",\"type\":\"uint256\"}],\"name\":\"tokenByIndex\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"index\",\"type\":\"uint256\"}],\"name\":\"tokenOfOwnerByIndex\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"tokenURI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
+	GameCharacterContractAddress = "0x53F255f247ebA0941b3901e26dbd28212a630e4b";
+	GameCharacterABI = "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"gameItemContractAddress\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"approved\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"approved\",\"type\":\"bool\"}],\"name\":\"ApprovalForAll\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"lord\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"renter\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"expiresAt\",\"type\":\"uint256\"}],\"name\":\"FinishedRent\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"characterId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"oldGlassesId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newGlassesId\",\"type\":\"uint256\"}],\"name\":\"GlassesChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"characterId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"oldHatId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newHatId\",\"type\":\"uint256\"}],\"name\":\"HatChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"lord\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"renter\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"expiresAt\",\"type\":\"uint256\"}],\"name\":\"Rented\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"previousAdminRole\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"newAdminRole\",\"type\":\"bytes32\"}],\"name\":\"RoleAdminChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RoleGranted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RoleRevoked\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"characterId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"oldShoesId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newShoesId\",\"type\":\"uint256\"}],\"name\":\"ShoesChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"DEFAULT_ADMIN_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MINTER_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"burn\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"characterId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"newGlassesId\",\"type\":\"uint256\"}],\"name\":\"changeGlasses\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"characterId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"newHatId\",\"type\":\"uint256\"}],\"name\":\"changeHat\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"characterId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"newShoesId\",\"type\":\"uint256\"}],\"name\":\"changeShoes\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"finishRenting\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"getApproved\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"characterId\",\"type\":\"uint256\"}],\"name\":\"getGlasses\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"characterId\",\"type\":\"uint256\"}],\"name\":\"getHat\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"}],\"name\":\"getRoleAdmin\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"characterId\",\"type\":\"uint256\"}],\"name\":\"getShoes\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"grantRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"hasRole\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"}],\"name\":\"isApprovedForAll\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"onERC1155BatchReceived\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"onERC1155Received\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"ownerOf\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"renounceRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"renter\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expiresAt\",\"type\":\"uint256\"}],\"name\":\"rentOut\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"rental\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"isActive\",\"type\":\"bool\"},{\"internalType\":\"address\",\"name\":\"lord\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"renter\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"expiresAt\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"revokeRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"}],\"name\":\"safeMint\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"safeTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"safeTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"approved\",\"type\":\"bool\"}],\"name\":\"setApprovalForAll\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"index\",\"type\":\"uint256\"}],\"name\":\"tokenByIndex\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"index\",\"type\":\"uint256\"}],\"name\":\"tokenOfOwnerByIndex\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"tokenURI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
 
 	TransactionGasLimit			 = "1000000";
-	BlueHatAddress				 = "0x00010000000000000000000000000000000000000000000000000000000001";
-	RedHatAddress				 = "0x00010000000000000000000000000000000000000000000000000000000002";
-	WhiteHatAddress				 = "0x00010000000000000000000000000000000000000000000000000000000003";
-	BlueShoesAddress			 = "0x00020000000000000000000000000000000000000000000000000000000001";
-	RedShoesAddress				 = "0x00020000000000000000000000000000000000000000000000000000000002";
-	WhiteShoesAddress			 = "0x00020000000000000000000000000000000000000000000000000000000003";
-	BlueGlassesAddress			 = "0x00030000000000000000000000000000000000000000000000000000000001";
-	RedGlassesAddress			 = "0x00030000000000000000000000000000000000000000000000000000000002";
-	WhiteGlassesAddress			 = "0x00030000000000000000000000000000000000000000000000000000000003";
 }
 
-// Init will save deviceId and session when the GetClient is called from MirageClient.cpp.
-void UWearableNFTExample::Init(FString _deviceId, FString _session)
-{
-	deviceId = _deviceId;
-	session = _session;
-}
+FString UWearableNFTExample::GetBlueHatAddress()      { return BlueHatAddress; }
+FString UWearableNFTExample::GetRedHatAddress()       { return RedHatAddress; }
+FString UWearableNFTExample::GetWhiteHatAddress()     { return WhiteHatAddress; }
+FString UWearableNFTExample::GetBlueShoesAddress()    { return BlueShoesAddress; }
+FString UWearableNFTExample::GetRedShoesAddress()     { return RedShoesAddress; }
+FString UWearableNFTExample::GetWhiteShoesAddress()   { return WhiteShoesAddress; }
+FString UWearableNFTExample::GetBlueGlassesAddress()  { return BlueGlassesAddress; }
+FString UWearableNFTExample::GetRedGlassesAddress()   { return RedGlassesAddress; }
+FString UWearableNFTExample::GetWhiteGlassesAddress() { return WhiteGlassesAddress; }
 
-// SetAccount will save activeAccount and chainId when the GetWalletInfo is called from MirageClient.cpp.
-void UWearableNFTExample::SetAccount(FString _account, int _chainId)
-{
-	activeAccount = _account;
-	chainId		  = _chainId;
-}
-
-// MintItems is used to mint items to the user specified in the parameter.
-// Metamask will show popup to sign or confirm the transaction for that ticket.
 void UWearableNFTExample::MintItems(FString abi_hash, FString to, FAnkrCallCompleteDynamicDelegate Result)
 {
-	http = &FHttpModule::Get();
-
-#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26)
-	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = http->CreateRequest();
-#else
-	TSharedRef<IHttpRequest> Request = http->CreateRequest();
-#endif
-	Request->OnProcessRequestComplete().BindLambda([Result, this](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+	const TArray<FString> items = { BlueHatAddress, RedHatAddress, WhiteHatAddress, BlueShoesAddress, WhiteShoesAddress, RedGlassesAddress, WhiteGlassesAddress };
+	
+	TArray<TSharedPtr<FJsonValue>> itemsArray;
+	for (int32 i = 0; i < items.Num(); i++)
 	{
-		const FString content = Response->GetContentAsString();
-		UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - MintItems - GetContentAsString: %s"), *content);
+		UPayloadBuilder::AddArrayItem(itemsArray, items[i]);
+	}
 
-		TSharedPtr<FJsonObject> JsonObject;
-		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(content);
+	const TArray<int> indices = { 1, 2, 2, 3, 4, 5, 6 };
 
-		FString data = content;
-		if (FJsonSerializer::Deserialize(Reader, JsonObject))
+	TArray<TSharedPtr<FJsonValue>> indicesArray;
+	for (int32 i = 0; i < indices.Num(); i++)
+	{
+		UPayloadBuilder::AddArrayItem(indicesArray, indices[i]);
+	}
+
+	TArray<TSharedPtr<FJsonValue>> args;
+	UPayloadBuilder::AddArrayItem  (args, to);
+	UPayloadBuilder::AddNestedArray(args, itemsArray);
+	UPayloadBuilder::AddNestedArray(args, indicesArray);
+	UPayloadBuilder::AddArrayItem  (args, FString("0x"));
+
+	TSharedPtr<FJsonObject> builder = UPayloadBuilder::GetBuilder();
+	builder->SetStringField("device_id",        UAnkrUtility::GetDeviceID());
+	builder->SetStringField("contract_address", GameItemContractAddress);
+	builder->SetStringField("abi_hash",			abi_hash);
+	builder->SetStringField("method",			"mintBatch");
+	builder->SetArrayField ("args",				args);
+	const FString payload = UPayloadBuilder::Build(builder);
+
+	SendRequest(UAnkrUtility::GetUrl() + ENDPOINT_SEND_TRANSACTION, "POST", payload, [this](const TArray<uint8> bytes, const FString content, const FAnkrCallCompleteDynamicDelegate& callback, TSharedPtr<FJsonObject> jsonObject)
 		{
-			FString ticket = JsonObject->GetStringField("ticket");
-			data = ticket;
-		}
-			
-		AnkrUtility::SetLastRequest("MintItems");
-		Result.ExecuteIfBound(content, data, "", -1, false);
-	});
+			UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - MintItems - response: %s"), *content);
 
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this, Request, abi_hash, to]()
-	{
-		FString mintBatchMethodName = "mintBatch";
+			FString ticket = jsonObject->GetStringField("ticket");
 
-		FString args = "[\"" + to + "\", [\"" + BlueHatAddress + "\", \"" + RedHatAddress + "\", \"" + BlueShoesAddress + "\", \"" + WhiteShoesAddress + "\", \"" + RedGlassesAddress + "\", \"" + WhiteGlassesAddress + "\"], [1, 2, 3, 4, 5, 6], \"0x\"]";
-		args = args.Replace(TEXT(" "), TEXT(""));
+			UAnkrUtility::SetLastRequest("MintItems");
+			callback.ExecuteIfBound(content, ticket, "", -1, false);
 
-		FString url = AnkrUtility::GetUrl() + ENDPOINT_SEND_TRANSACTION;
-		Request->SetURL(url);
-		Request->SetVerb("POST");
-		Request->SetHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
-		Request->SetContentAsString("{\"device_id\": \"" + deviceId + "\", \"contract_address\": \"" + GameItemContractAddress + "\", \"abi_hash\": \"" + abi_hash + "\", \"method\": \"" + mintBatchMethodName + "\", \"args\": " + args + "}");
-		Request->ProcessRequest();
-
-#if PLATFORM_ANDROID
-		FPlatformProcess::LaunchURL(session.GetCharArray().GetData(), NULL, NULL);
+#if PLATFORM_ANDROID || PLATFORM_IOS
+			FPlatformProcess::LaunchURL(UAnkrUtility::GetSession().GetCharArray().GetData(), NULL, NULL);
 #endif
-	});
+
+		}, Result, true);
 }
 
-// MintCharacter is used to mint character to the user specified in the parameter.
-// Metamask will show popup to sign or confirm the transaction for that ticket.
 void UWearableNFTExample::MintCharacter(FString abi_hash, FString to, FAnkrCallCompleteDynamicDelegate Result)
 {
-	http = &FHttpModule::Get();
+	TArray<TSharedPtr<FJsonValue>> args;
+	UPayloadBuilder::AddArrayItem(args, to);
 
-#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26)
-	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = http->CreateRequest();
-#else
-	TSharedRef<IHttpRequest> Request = http->CreateRequest();
-#endif
-	Request->OnProcessRequestComplete().BindLambda([Result, this](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
-	{
-		const FString content = Response->GetContentAsString();
-		UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - MintCharacter - GetContentAsString: %s"), *content);
+	TSharedPtr<FJsonObject> builder = UPayloadBuilder::GetBuilder();
+	builder->SetStringField("device_id",		UAnkrUtility::GetDeviceID());
+	builder->SetStringField("contract_address", GameCharacterContractAddress);
+	builder->SetStringField("abi_hash",			abi_hash);
+	builder->SetStringField("method",			"safeMint");
+	builder->SetArrayField ("args",				args);
+	const FString payload = UPayloadBuilder::Build(builder);
 
-		TSharedPtr<FJsonObject> JsonObject;
-		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(content);
-
-		FString data = content;
-		if (FJsonSerializer::Deserialize(Reader, JsonObject))
+	SendRequest(UAnkrUtility::GetUrl() + ENDPOINT_SEND_TRANSACTION, "POST", payload, [this](const TArray<uint8> bytes, const FString content, const FAnkrCallCompleteDynamicDelegate& callback, TSharedPtr<FJsonObject> jsonObject)
 		{
-			FString ticket = JsonObject->GetStringField("ticket");
-			data = ticket;
-		}
-			
-		AnkrUtility::SetLastRequest("MintCharacter");
-		Result.ExecuteIfBound(content, data, "", -1, false);
-	});
+			UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - MintCharacter - response: %s"), *content);
 
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this, Request, abi_hash, to]()
-	{
-		FString safeMintMethodName = "safeMint";
+			FString ticket = jsonObject->GetStringField("ticket");
 
-		FString url = AnkrUtility::GetUrl() + ENDPOINT_SEND_TRANSACTION;
-		Request->SetURL(url);
-		Request->SetVerb("POST");
-		Request->SetHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
-		Request->SetContentAsString("{\"device_id\": \"" + deviceId + "\", \"contract_address\": \"" + GameCharacterContractAddress + "\", \"abi_hash\": \"" + abi_hash + "\", \"method\": \"" + safeMintMethodName + "\", \"args\": [\"" + to + "\"]}");
-		Request->ProcessRequest();
+			UAnkrUtility::SetLastRequest("MintCharacter");
+			callback.ExecuteIfBound(content, ticket, "", -1, false);
 
-#if PLATFORM_ANDROID
-			FPlatformProcess::LaunchURL(session.GetCharArray().GetData(), NULL, NULL);
+#if PLATFORM_ANDROID || PLATFORM_IOS
+			FPlatformProcess::LaunchURL(UAnkrUtility::GetSession().GetCharArray().GetData(), NULL, NULL);
 #endif
-	});
+
+		}, Result, true);
 }
 
-// GameItemSetApproval is used to give an approval for minting.
-// Metamask will show popup to sign or confirm the transaction for that ticket.
 void UWearableNFTExample::GameItemSetApproval(FString abi_hash, FString callOperator, bool approved, FAnkrCallCompleteDynamicDelegate Result)
 {
-	http = &FHttpModule::Get();
+	TArray<TSharedPtr<FJsonValue>> args;
+	UPayloadBuilder::AddArrayItem(args, callOperator);
+	UPayloadBuilder::AddArrayItem(args, approved);
 
-#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26)
-	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = http->CreateRequest();
-#else
-	TSharedRef<IHttpRequest> Request = http->CreateRequest();
-#endif
-	Request->OnProcessRequestComplete().BindLambda([Result, this](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
-	{
-		const FString content = Response->GetContentAsString();
-		UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - GameItemSetApproval - GetContentAsString: %s"), *content);
+	TSharedPtr<FJsonObject> builder = UPayloadBuilder::GetBuilder();
+	builder->SetStringField("device_id",		UAnkrUtility::GetDeviceID());
+	builder->SetStringField("contract_address", GameItemContractAddress);
+	builder->SetStringField("abi_hash",			abi_hash);
+	builder->SetStringField("method",			"setApprovalForAll");
+	builder->SetArrayField("args",				args);
+	const FString payload = UPayloadBuilder::Build(builder);
 
-		TSharedPtr<FJsonObject> JsonObject;
-		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(content);
-			
-		FString data = content;
-		if (FJsonSerializer::Deserialize(Reader, JsonObject))
+	SendRequest(UAnkrUtility::GetUrl() + ENDPOINT_SEND_TRANSACTION, "POST", payload, [this](const TArray<uint8> bytes, const FString content, const FAnkrCallCompleteDynamicDelegate& callback, TSharedPtr<FJsonObject> jsonObject)
 		{
-			bool result = JsonObject->GetBoolField("result");
+			UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - GameItemSetApproval - response: %s"), *content);
+
+			FString data = content;
+			bool result = jsonObject->GetBoolField("result");
 			if (result)
 			{
-				FString ticket = JsonObject->GetStringField("ticket");
+				FString ticket = jsonObject->GetStringField("ticket");
 				data = ticket;
 			}
-		}
-			
-		AnkrUtility::SetLastRequest("GameItemSetApproval");
-		Result.ExecuteIfBound(content, data, "", -1, false);
-	});
 
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this, Request, abi_hash, callOperator, approved]()
-	{
-		FString setApprovalForAllMethodName = "setApprovalForAll";
+			UAnkrUtility::SetLastRequest("GameItemSetApproval");
+			callback.ExecuteIfBound(content, data, "", -1, false);
 
-		FString body = "{\"device_id\": \"" + deviceId + "\", \"contract_address\": \"" + GameItemContractAddress + "\", \"abi_hash\": \"" + abi_hash + "\", \"method\": \"" + setApprovalForAllMethodName + "\", \"args\": [\"" + GameCharacterContractAddress + "\", true ]}";
-			
-		FString url = AnkrUtility::GetUrl() + ENDPOINT_SEND_TRANSACTION;
-		Request->SetURL(url);
-		Request->SetVerb("POST");
-		Request->SetHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
-		Request->SetContentAsString(body);
-		Request->ProcessRequest();
-
-#if PLATFORM_ANDROID
-			FPlatformProcess::LaunchURL(session.GetCharArray().GetData(), NULL, NULL);
+#if PLATFORM_ANDROID || PLATFORM_IOS
+			FPlatformProcess::LaunchURL(UAnkrUtility::GetSession().GetCharArray().GetData(), NULL, NULL);
 #endif
-	});
+
+		}, Result, true);
 }
 
-// GetCharacterBalance is used to get the number of token balances that the user holds.
-// The 'data' shows the number of tokens that the user holds.
 void UWearableNFTExample::GetCharacterBalance(FString abi_hash, FString address, FAnkrCallCompleteDynamicDelegate Result)
 {
-	http = &FHttpModule::Get();
+	TArray<TSharedPtr<FJsonValue>> args;
+	UPayloadBuilder::AddArrayItem(args, address);
 
-#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26)
-	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = http->CreateRequest();
-#else
-	TSharedRef<IHttpRequest> Request = http->CreateRequest();
-#endif
-	Request->OnProcessRequestComplete().BindLambda([Result, this](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
-	{
-		const FString content = Response->GetContentAsString();
-		UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - GetCharacterBalance - GetContentAsString: %s"), *content);
+	TSharedPtr<FJsonObject> builder = UPayloadBuilder::GetBuilder();
+	builder->SetStringField("device_id",		UAnkrUtility::GetDeviceID());
+	builder->SetStringField("contract_address", GameCharacterContractAddress);
+	builder->SetStringField("abi_hash",			abi_hash);
+	builder->SetStringField("method",			"balanceOf");
+	builder->SetArrayField("args",				args);
+	const FString payload = UPayloadBuilder::Build(builder);
 
-		TSharedPtr<FJsonObject> JsonObject;
-		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(content);
-			
-		FString data = content;
-		if (FJsonSerializer::Deserialize(Reader, JsonObject))
+	SendRequest(UAnkrUtility::GetUrl() + ENDPOINT_CALL_METHOD, "POST", payload, [this](const TArray<uint8> bytes, const FString content, const FAnkrCallCompleteDynamicDelegate& callback, TSharedPtr<FJsonObject> jsonObject)
 		{
-			data = JsonObject->GetStringField("data");
-		}
-			
-		Result.ExecuteIfBound(content, data, "", -1, false);
-	});
+			UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - GetCharacterBalance - response: %s"), *content);
 
-	FString balanceOfMethodName = "balanceOf";
+			FString data = jsonObject->GetStringField("data");
 
-	FString url = AnkrUtility::GetUrl() + ENDPOINT_CALL_METHOD;
-	Request->SetURL(url);
-	Request->SetVerb("POST");
-	Request->SetHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
-	Request->SetContentAsString("{\"device_id\": \"" + deviceId + "\", \"contract_address\": \"" + GameCharacterContractAddress + "\", \"abi_hash\": \"" + abi_hash + "\", \"method\": \"" + balanceOfMethodName + "\", \"args\": [\"" + address + "\"]}");
-	Request->ProcessRequest();
+			callback.ExecuteIfBound(content, data, "", -1, false);
+
+		}, Result, false);
 }
 
-// GetCharacterTokenId is used to get the token ids that the user holds.
-// The 'data' shows the id of the character.
 void UWearableNFTExample::GetCharacterTokenId(FString abi_hash, int tokenBalance, FString owner, FString index, FAnkrCallCompleteDynamicDelegate Result)
 {
 	if (tokenBalance <= 0)
@@ -240,225 +171,168 @@ void UWearableNFTExample::GetCharacterTokenId(FString abi_hash, int tokenBalance
 		return;
 	}
 
-	http = &FHttpModule::Get();
+	TArray<TSharedPtr<FJsonValue>> args;
+	UPayloadBuilder::AddArrayItem(args, owner);
+	UPayloadBuilder::AddArrayItem(args, index);
 
-#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26)
-	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = http->CreateRequest();
-#else
-	TSharedRef<IHttpRequest> Request = http->CreateRequest();
-#endif
-	Request->OnProcessRequestComplete().BindLambda([Result, this](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
-	{
-		const FString content = Response->GetContentAsString();
-		UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - GetCharacterTokenId - GetContentAsString: %s"), *content);
+	TSharedPtr<FJsonObject> builder = UPayloadBuilder::GetBuilder();
+	builder->SetStringField("device_id",		UAnkrUtility::GetDeviceID());
+	builder->SetStringField("contract_address", GameCharacterContractAddress);
+	builder->SetStringField("abi_hash",			abi_hash);
+	builder->SetStringField("method",			"tokenOfOwnerByIndex");
+	builder->SetArrayField("args",				args);
+	const FString payload = UPayloadBuilder::Build(builder);
 
-		TSharedPtr<FJsonObject> JsonObject;
-		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(content);
-			
-		FString data = content;
-		if (FJsonSerializer::Deserialize(Reader, JsonObject))
+	SendRequest(UAnkrUtility::GetUrl() + ENDPOINT_CALL_METHOD, "POST", payload, [this](const TArray<uint8> bytes, const FString content, const FAnkrCallCompleteDynamicDelegate& callback, TSharedPtr<FJsonObject> jsonObject)
 		{
-			data = JsonObject->GetStringField("data");
-		}
+			UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - GetCharacterTokenId - response: %s"), *content);
 
-		Result.ExecuteIfBound(content, data, "", -1, false);
-	});
+			FString data = jsonObject->GetStringField("data");
 
-	FString tokenOfOwnerByIndexMethodName = "tokenOfOwnerByIndex";
+			callback.ExecuteIfBound(content, data, "", -1, false);
 
-	FString url = AnkrUtility::GetUrl() + ENDPOINT_CALL_METHOD;
-	Request->SetURL(url);
-	Request->SetVerb("POST");
-	Request->SetHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
-	Request->SetContentAsString("{\"device_id\": \"" + deviceId + "\", \"contract_address\": \"" + GameCharacterContractAddress + "\", \"abi_hash\": \"" + abi_hash + "\", \"method\": \"" + tokenOfOwnerByIndexMethodName + "\", \"args\": [\"" + owner + "\", \"" + index + "\"]}");
-	Request->ProcessRequest();
+		}, Result, false);
 }
 
-// ChangeHat is used to change the hat of a character.
-// Metamask will show popup to sign or confirm the transaction for that ticket.
-void UWearableNFTExample::ChangeHat(FString abi_hash, int characterId, bool hasHat, FString hatAddress, FAnkrCallCompleteDynamicDelegate Result)
+void UWearableNFTExample::ChangeHat(FString abi_hash, int characterId, FString hatAddress, FAnkrCallCompleteDynamicDelegate Result)
 {
-	if (!hasHat || characterId == -1)
+	if (characterId < 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - ChangeHat - CharacterID or HatID is null"));
+		UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - ChangeHat - CharacterID is invalid"));
 		return;
 	}
 
-	http = &FHttpModule::Get();
-	
-#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26)
-	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = http->CreateRequest();
-#else
-	TSharedRef<IHttpRequest> Request = http->CreateRequest();
-#endif
-	Request->OnProcessRequestComplete().BindLambda([Result, this, hatAddress](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
-	{
-		const FString content = Response->GetContentAsString();
-		UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - ChangeHat - GetContentAsString: %s"), *content);
+	if (hatAddress.Equals(BlueHatAddress)) UAnkrUtility::SetLastRequest("ChangeHatBlue");
+	else if (hatAddress.Equals(RedHatAddress)) UAnkrUtility::SetLastRequest("ChangeHatRed");
+	else if (hatAddress.Equals(RedHatAddress)) UAnkrUtility::SetLastRequest("ChangeHatWhite");
 
-		TSharedPtr<FJsonObject> JsonObject;
-		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(content);
-			
-		FString ticket = content;
-		if (FJsonSerializer::Deserialize(Reader, JsonObject))
+	TSharedPtr<FJsonObject> gas = UPayloadBuilder::GetBuilder();
+	gas->SetNumberField("gasLimit", 200000);
+
+	TArray<TSharedPtr<FJsonValue>> args;
+	UPayloadBuilder::AddArrayItem(args, FString::FromInt(characterId));
+	UPayloadBuilder::AddArrayItem(args, hatAddress);
+	//UPayloadBuilder::AddNestedObject(args, gas);
+
+	TSharedPtr<FJsonObject> builder = UPayloadBuilder::GetBuilder();
+	builder->SetStringField("device_id",		UAnkrUtility::GetDeviceID());
+	builder->SetStringField("contract_address", GameCharacterContractAddress);
+	builder->SetStringField("abi_hash",			abi_hash);
+	builder->SetStringField("method",			"changeHat");
+	builder->SetArrayField("args",				args);
+	const FString payload = UPayloadBuilder::Build(builder);
+
+	SendRequest(UAnkrUtility::GetUrl() + ENDPOINT_SEND_TRANSACTION, "POST", payload, [this, hatAddress](const TArray<uint8> bytes, const FString content, const FAnkrCallCompleteDynamicDelegate& callback, TSharedPtr<FJsonObject> jsonObject)
 		{
-			ticket = JsonObject->GetStringField("ticket");
-		}
-			
-		if		(hatAddress.Equals(BlueHatAddress)) AnkrUtility::SetLastRequest("ChangeHatBlue");
-		else if (hatAddress.Equals(RedHatAddress))  AnkrUtility::SetLastRequest("ChangeHatRed");
-			
-		Result.ExecuteIfBound(content, ticket, "", -1, false);
-	});
+			UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - ChangeHat - response: %s"), *content);
 
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this, Request, abi_hash, characterId, hasHat, hatAddress]()
-	{
-		FString changeHatMethodName = "changeHat";
+			FString ticket = jsonObject->GetStringField("ticket");
 
-		FString body = "{\"device_id\": \"" + deviceId + "\", \"contract_address\": \"" + GameCharacterContractAddress + "\", \"abi_hash\": \"" + abi_hash + "\", \"method\": \"" + changeHatMethodName + "\", \"args\": [\"" + FString::FromInt(characterId) + "\", \"" + hatAddress + "\"]}";
+			callback.ExecuteIfBound(content, ticket, "", -1, false);
 
-		FString url = AnkrUtility::GetUrl() + ENDPOINT_SEND_TRANSACTION;
-		Request->SetURL(url);
-		Request->SetVerb("POST");
-		Request->SetHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
-		Request->SetContentAsString(body);
-		Request->ProcessRequest();
-
-#if PLATFORM_ANDROID
-		FPlatformProcess::LaunchURL(session.GetCharArray().GetData(), NULL, NULL);
+#if PLATFORM_ANDROID || PLATFORM_IOS
+			FPlatformProcess::LaunchURL(UAnkrUtility::GetSession().GetCharArray().GetData(), NULL, NULL);
 #endif
-	});
+
+		}, Result, true);
 }
 
-// GetHat is used to get the hat of the user.
-// The 'data' shows the token address that the user has.
 void UWearableNFTExample::GetHat(FString abi_hash, int characterId, FAnkrCallCompleteDynamicDelegate Result)
 {
-	http = &FHttpModule::Get();
+	TArray<TSharedPtr<FJsonValue>> args;
+	UPayloadBuilder::AddArrayItem(args, FString::FromInt(characterId));
 
-#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26)
-	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = http->CreateRequest();
-#else
-	TSharedRef<IHttpRequest> Request = http->CreateRequest();
-#endif
-	Request->OnProcessRequestComplete().BindLambda([Result, this](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
-	{
-		const FString content = Response->GetContentAsString();
-		UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - GetHat - GetContentAsString: %s"), *content);
+	TSharedPtr<FJsonObject> builder = UPayloadBuilder::GetBuilder();
+	builder->SetStringField("device_id",		UAnkrUtility::GetDeviceID());
+	builder->SetStringField("contract_address", GameCharacterContractAddress);
+	builder->SetStringField("abi_hash",			abi_hash);
+	builder->SetStringField("method",			"getHat");
+	builder->SetArrayField("args",				args);
+	const FString payload = UPayloadBuilder::Build(builder);
 
-		TSharedPtr<FJsonObject> JsonObject;
-		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(content);
-
-		FString data = content;
-		if (FJsonSerializer::Deserialize(Reader, JsonObject))
+	SendRequest(UAnkrUtility::GetUrl() + ENDPOINT_CALL_METHOD, "POST", payload, [this](const TArray<uint8> bytes, const FString content, const FAnkrCallCompleteDynamicDelegate& callback, TSharedPtr<FJsonObject> jsonObject)
 		{
-			data = JsonObject->GetStringField("data");
-		}
+			UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - GetHat - response: %s"), *content);
+
+			FString data = jsonObject->GetStringField("data");
 			
-		Result.ExecuteIfBound(content, data, "", -1, false);
-	});
+			callback.ExecuteIfBound(content, data, "", -1, false);
 
-	FString getHatMethodName = "getHat";
-
-	FString url = AnkrUtility::GetUrl() + ENDPOINT_CALL_METHOD;
-	Request->SetURL(url);
-	Request->SetVerb("POST");
-	Request->SetHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
-	Request->SetContentAsString("{\"device_id\": \"" + deviceId + "\", \"contract_address\": \"" + GameCharacterContractAddress + "\", \"abi_hash\": \"" + abi_hash + "\", \"method\": \"" + getHatMethodName + "\", \"args\": [\"" + FString::FromInt(characterId) + "\"]}");
-	Request->ProcessRequest();
+		}, Result, false);
 }
 
-// GetTicketResult is used to get the result of a ticket.
-// The 'status' shows whether the result for the ticket signed has a success with a transaction hash.
-// The 'code' shows a code number related to a specific failure or success.
-void UWearableNFTExample::GetTicketResult(FString ticketId, FAnkrCallCompleteDynamicDelegate Result)
+void UWearableNFTExample::GetWearableNFTResult(FString ticketId, FAnkrCallCompleteDynamicDelegate Result)
 {
-#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26)
-	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = http->CreateRequest();
-#else
-	TSharedRef<IHttpRequest> Request = http->CreateRequest();
-#endif
-	Request->OnProcessRequestComplete().BindLambda([Result, ticketId, this](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
-	{
-		const FString content = Response->GetContentAsString();
-		UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - GetTicketResult - GetContentAsString: %s"), *content);
-
-		TSharedPtr<FJsonObject> JsonObject;
-		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(content);
-			
-		FString data = content;
-		int code = 0;
-		if (FJsonSerializer::Deserialize(Reader, JsonObject))
+	const FString payload = UPayloadBuilder::BuildPayload(
 		{
-			code = 1;
+			{"ticket", UPayloadBuilder::FStringToJsonValue(ticketId)}
+		});
 
-			if (AnkrUtility::GetLastRequest().Equals("ChangeHatBlue") || AnkrUtility::GetLastRequest().Equals("ChangeHatRed"))
+	SendRequest(UAnkrUtility::GetUrl() + ENDPOINT_RESULT, "POST", payload, [this](const TArray<uint8> bytes, const FString content, const FAnkrCallCompleteDynamicDelegate& callback, TSharedPtr<FJsonObject> jsonObject)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - GetWearableNFTResult - response: %s"), *content);
+
+			FString status;
+			FString txHash;
+			bool hasTxHash = false;
+
+			bool result = jsonObject->GetBoolField("result");
+			if (result)
 			{
-				bool result					   = JsonObject->GetBoolField("result");
-				TSharedPtr<FJsonObject> object = JsonObject->GetObjectField("data");
-				FString transactionHash		   = object->GetStringField("tx_hash");
-				FString status				   = object->GetStringField("status");
-				UE_LOG(LogTemp, Warning, TEXT("tx_hash: %s | status: %s"), *transactionHash, *status);
+				TSharedPtr<FJsonObject> object = jsonObject->GetObjectField("data");
+				status = object->GetStringField("status");
 
-				if (result && status == "success")
+				hasTxHash = object->TryGetStringField("tx_hash", txHash);
+				if (hasTxHash)
 				{
-					code = 123;
+					UE_LOG(LogTemp, Warning, TEXT("tx_hash: %s"), *txHash);
 				}
 			}
-		}
 
-		Result.ExecuteIfBound(content, data, "", code, false);
-	});
+			callback.ExecuteIfBound(content, txHash, status, -1, hasTxHash);
 
-	FString url = AnkrUtility::GetUrl() + ENDPOINT_RESULT;
-	Request->SetURL(url);
-	Request->SetVerb("POST");
-	Request->SetHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
-	Request->SetContentAsString("{\"ticket\": \"" + ticketId + "\" }");
-	Request->ProcessRequest();
+		}, Result, false);
 }
 
-// GetItemsBalance is used to get the item balances that the user has.
 void UWearableNFTExample::GetItemsBalance(FString abi_hash, FString address, FAnkrCallCompleteDynamicDelegate Result)
 {
-	http = &FHttpModule::Get();
-
-#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26)
-	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = http->CreateRequest();
-#else
-	TSharedRef<IHttpRequest> Request = http->CreateRequest();
-#endif
-	Request->OnProcessRequestComplete().BindLambda([Result, this](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+	TArray<TSharedPtr<FJsonValue>> addressArray;
+	for (int32 i = 0; i < 9; i++)
 	{
-		const FString content = Response->GetContentAsString();
-		UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - GetItemsBalance - GetContentAsString: %s"), *content);
+		UPayloadBuilder::AddArrayItem(addressArray, UAnkrUtility::GetWalletAddress());
+	}
 
-		TSharedPtr<FJsonObject> JsonObject;
-		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(content);
-
-		FString data = content;
-		if (FJsonSerializer::Deserialize(Reader, JsonObject))
-		{
-			data = JsonObject->GetStringField("data");
-			UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - GetItemsBalance - Balance: %s"), *data);
-		}
-			
-		Result.ExecuteIfBound(content, data, "", -1, false);
-	});
-
-	FString balanceOfBatchMethodName = "balanceOfBatch";
-
-	FString args = "[ [\"" + activeAccount + "\", \"" + activeAccount + "\", \"" + activeAccount + "\", \"" + activeAccount + "\", \"" + activeAccount + "\", \"" + activeAccount + "\", \"" + activeAccount + "\", \"" + activeAccount + "\", \"" + activeAccount + "\"], [\"" + BlueHatAddress + "\", \"" + RedHatAddress + "\", \"" + WhiteHatAddress + "\", \"" + BlueShoesAddress + "\", \"" + RedShoesAddress + "\", \"" + WhiteShoesAddress + "\", \"" + BlueGlassesAddress + "\", \"" + RedGlassesAddress + "\", \"" + WhiteGlassesAddress + "\"]]";
+	const TArray<FString> items = { BlueHatAddress, RedHatAddress, WhiteHatAddress, BlueShoesAddress, RedShoesAddress, WhiteShoesAddress, BlueGlassesAddress, RedGlassesAddress, WhiteGlassesAddress };
 	
-	FString url = AnkrUtility::GetUrl() + ENDPOINT_CALL_METHOD;
-	Request->SetURL(url);
-	Request->SetVerb("POST");
-	Request->SetHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
-	Request->SetContentAsString("{\"device_id\": \"" + deviceId + "\", \"contract_address\": \"" + GameItemContractAddress + "\", \"abi_hash\": \"" + abi_hash + "\", \"method\": \"" + balanceOfBatchMethodName + "\", \"args\": " + args + "}");
-	Request->ProcessRequest();
+	TArray<TSharedPtr<FJsonValue>> itemsArray;
+	for (int32 i = 0; i < items.Num(); i++)
+	{
+		UPayloadBuilder::AddArrayItem(itemsArray, items[i]);
+	}
+
+	TArray<TSharedPtr<FJsonValue>> args;
+	UPayloadBuilder::AddNestedArray(args, addressArray);
+	UPayloadBuilder::AddNestedArray(args, itemsArray);
+
+	TSharedPtr<FJsonObject> builder = UPayloadBuilder::GetBuilder();
+	builder->SetStringField("device_id",		UAnkrUtility::GetDeviceID());
+	builder->SetStringField("contract_address", GameItemContractAddress);
+	builder->SetStringField("abi_hash",			abi_hash);
+	builder->SetStringField("method",			"balanceOfBatch");
+	builder->SetArrayField("args",				args);
+	const FString payload = UPayloadBuilder::Build(builder);
+
+	SendRequest(UAnkrUtility::GetUrl() + ENDPOINT_CALL_METHOD, "POST", payload, [this](const TArray<uint8> bytes, const FString content, const FAnkrCallCompleteDynamicDelegate& callback, TSharedPtr<FJsonObject> jsonObject)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - GetItemsBalance - response: %s"), *content);
+
+			FString data = jsonObject->GetStringField("data");
+
+			callback.ExecuteIfBound(content, data, "", -1, false);
+
+		}, Result, false);
 }
 
-// GetItemValueFromBalances is used to get the balance value for a token inside the balance array that is returned from GetItemsBalance.
 int UWearableNFTExample::GetItemValueFromBalances(FString data, int index)
 {
 	TArray<FString> tokens;
@@ -481,36 +355,39 @@ int UWearableNFTExample::GetItemValueFromBalances(FString data, int index)
 
 void UWearableNFTExample::GetTokenURI(FString abi_hash, int tokenId, FAnkrCallCompleteDynamicDelegate Result)
 {
-	http = &FHttpModule::Get();
-
-#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 26)
-	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = http->CreateRequest();
-#else
-	TSharedRef<IHttpRequest> Request = http->CreateRequest();
-#endif
-	Request->OnProcessRequestComplete().BindLambda([Result, this](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
-		{
-			const FString content = Response->GetContentAsString();
-			UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - GetCharacterTokenId - GetContentAsString: %s"), *content);
-
-			TSharedPtr<FJsonObject> JsonObject;
-			TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(content);
-
-			FString data = content;
-			if (FJsonSerializer::Deserialize(Reader, JsonObject))
-			{
-				data = JsonObject->GetStringField("data");
-			}
-
-			Result.ExecuteIfBound(content, data, "", -1, false);
+	const FString payload =  UPayloadBuilder::BuildPayload(
+		{ 
+			{"device_id",		 UPayloadBuilder::FStringToJsonValue(UAnkrUtility::GetDeviceID())},
+			{"contract_address", UPayloadBuilder::FStringToJsonValue(GameCharacterContractAddress)},
+			{"abi_hash",		 UPayloadBuilder::FStringToJsonValue(abi_hash)},
+			{"method",			 UPayloadBuilder::FStringToJsonValue("tokenURI")},
+			{"args",			 UPayloadBuilder::FStringToJsonValue(FString::FromInt(tokenId))} 
 		});
 
-	FString tokenURI = "tokenURI";
+	SendRequest(UAnkrUtility::GetUrl() + ENDPOINT_CALL_METHOD, "POST", payload, [this](const TArray<uint8> bytes, const FString content, const FAnkrCallCompleteDynamicDelegate& callback, TSharedPtr<FJsonObject> jsonObject)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("WearableNFTExample - GetTokenURI - response: %s"), *content);
 
-	FString url = AnkrUtility::GetUrl() + ENDPOINT_CALL_METHOD;
-	Request->SetURL(url);
-	Request->SetVerb("POST");
-	Request->SetHeader(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
-	Request->SetContentAsString("{\"device_id\": \"" + deviceId + "\", \"contract_address\": \"" + GameCharacterContractAddress + "\", \"abi_hash\": \"" + abi_hash + "\", \"method\": \"" + tokenURI + "\", \"args\": \"" + FString::FromInt(tokenId) + "\"}");
-	Request->ProcessRequest();
+			FString data = jsonObject->GetStringField("data");
+
+			callback.ExecuteIfBound(content, data, "", -1, false);
+
+		}, Result, false);
+}
+
+FString UWearableNFTExample::GetHatAddressByID(FString _hatID)
+{
+	const TMap<FString, FString> hats
+	{
+		{"6901746346790563787434755862277025452451108972170386555162524223799297", "0x00010000000000000000000000000000000000000000000000000000000001"},
+		{"6901746346790563787434755862277025452451108972170386555162524223799298", "0x00010000000000000000000000000000000000000000000000000000000002"},
+		{"6901746346790563787434755862277025452451108972170386555162524223799299", "0x00010000000000000000000000000000000000000000000000000000000003"}
+	};
+
+	if (hats.Contains(_hatID))
+	{
+		return hats[_hatID];
+	}
+
+	return FString("");
 }
