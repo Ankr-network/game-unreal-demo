@@ -82,12 +82,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AnkrUtility") static FString GetLanguage();
 	UFUNCTION(BlueprintCallable, Category = "AnkrUtility") static void SetLanguage(FString _language);
 	UFUNCTION(BlueprintCallable, Category = "AnkrUtility") static void Reset();
-	
-	static long GetDecimalFromHex(std::string hex);
-	static std::string RepositionHexString(std::string myString);
 
 	static std::string FStringToStdString(FString fstring);
 	static FString StdStringToFString(std::string stdstring);
-
-	static std::vector<uint8_t> GetBigInteger(std::string _intString);
 };
