@@ -1,0 +1,13 @@
+/NOLOGO
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/DEF
+/NAME:"UnrealEditor-MirageSDK.dll"
+/IGNORE:4221
+/NODEFAULTLIB
+"D:\GitHub\GitHub\game-unreal-demo\AnkrUnrealDemo\Intermediate\Build\Win64\MirageUnrealSDKEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h.obj"
+"D:\GitHub\GitHub\game-unreal-demo\AnkrUnrealDemo\Plugins\MirageSDK\Intermediate\Build\Win64\UnrealEditor\Development\MirageSDK\Module.MirageSDK.cpp.obj"
+"D:\GitHub\GitHub\game-unreal-demo\AnkrUnrealDemo\Plugins\MirageSDK\Intermediate\Build\Win64\UnrealEditor\Development\MirageSDK\Module.MirageSDK.gen.cpp.obj"
+"D:\GitHub\GitHub\game-unreal-demo\AnkrUnrealDemo\Plugins\MirageSDK\Intermediate\Build\Win64\UnrealEditor\Development\MirageSDK\Default.rc2.res"
+/OUT:"D:\GitHub\GitHub\game-unreal-demo\AnkrUnrealDemo\Plugins\MirageSDK\Intermediate\Build\Win64\UnrealEditor\Development\MirageSDK\UnrealEditor-MirageSDK.lib"

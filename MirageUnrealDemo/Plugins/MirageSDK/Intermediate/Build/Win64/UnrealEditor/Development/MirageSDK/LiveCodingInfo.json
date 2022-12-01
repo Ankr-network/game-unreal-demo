@@ -1,0 +1,34 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.MirageSDK.cpp.obj": [
+			"AdvertisementManager.cpp.obj",
+			"MirageClient.cpp.obj",
+			"MirageClientBase.cpp.obj",
+			"MirageSaveGame.cpp.obj",
+			"MirageSDK.cpp.obj",
+			"MirageUtility.cpp.obj",
+			"PayloadBuilder.cpp.obj",
+			"qrcodegen.cpp.obj",
+			"QRCodeGenerator.cpp.obj",
+			"UpdateNFTExample.cpp.obj",
+			"WearableNFTExample.cpp.obj",
+			"LibraryManager.cpp.obj"
+		],
+		"Module.MirageSDK.gen.cpp.obj": [
+			"AdvertisementData.gen.cpp.obj",
+			"AdvertisementManager.gen.cpp.obj",
+			"ItemInfo.gen.cpp.obj",
+			"MirageClient.gen.cpp.obj",
+			"MirageClientBase.gen.cpp.obj",
+			"MirageDelegates.gen.cpp.obj",
+			"MirageSaveGame.gen.cpp.obj",
+			"MirageSDK.init.gen.cpp.obj",
+			"MirageUtility.gen.cpp.obj",
+			"QRCodeGenerator.gen.cpp.obj",
+			"RequestBodyStructure.gen.cpp.obj",
+			"UpdateNFTExample.gen.cpp.obj",
+			"WearableNFTExample.gen.cpp.obj"
+		]
+	}
+}
