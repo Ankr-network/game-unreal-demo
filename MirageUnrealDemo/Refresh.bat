@@ -6,8 +6,8 @@ RD /S /Q "Intermediate/"
 RD /S /Q "Saved/"
 RD /S /Q "DerivedDataCache/"
 RD /S /Q "Script/"
-RD /S /Q "Plugins/Mirage/Binaries/"
-RD /S /Q "Plugins/Mirage/Intermediate/"
+RD /S /Q "Plugins/MirageSDK/Binaries/"
+RD /S /Q "Plugins/MirageSDK/Intermediate/"
 Del symbols.zip
 Del MirageUnrealDemo.sln
 exit
